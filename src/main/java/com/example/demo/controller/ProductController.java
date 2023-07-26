@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,78 +16,73 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.Employee;
 import com.example.demo.model.Product;
+import com.example.demo.repository.ProductRepository;
 
 @RestController
 public class ProductController {
 
 	@Autowired
-	
+	ProductRepository productRepository;
 	
 	private List<Product> data = new ArrayList<Product>();
 	private List<Product> dataSearch = new ArrayList<Product>();
 
-	@GetMapping("product")
+	@GetMapping("/product")
 	public List<Product> getProduct() {
 
-		return data;
+		return productRepository.findAll();
 	}
 
 	@GetMapping("/product/{productId}")
-	public Product getProductDetail(@PathVariable Integer productId) {
+	public Optional<Product> getProductDetail(@PathVariable Integer productId) {
 
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getProductId() == productId) {
-
-				return data.get(i);
-			}
-		}
-		return null;
+		Optional<Product> product = productRepository.findById(productId);
+		
+		return product;
 	}
 
 	@PostMapping("/product")
 	public Product addProduct(@RequestBody Product body) {
 
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getProductId() == body.getProductId()) {
-
-				return null;
-			}
-		}
-
-		data.add(body);
-		return body;
+		return productRepository.save(body);
 	}
 
 	@PutMapping("/product/{productId}")
 	public Product updateProduct(@PathVariable Integer productId, @RequestBody Product body) {
 
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getProductId() == productId) {
-
-				data.get(i).setProductName(body.getProductName());
-				data.get(i).setProductPrice(body.getProductPrice());
-				data.get(i).setProductDetail(body.getProductDetail());
-				data.get(i).setProductAmount(body.getProductAmount());
-				return data.get(i);
-			}
+		Optional<Product> product = productRepository.findById(productId);
+		
+		if(product.isPresent()) {
+			product.get().setProductName(body.getProductName());
+			product.get().setProductPrice(body.getProductPrice());
+			product.get().setProductDetail(body.getProductDetail());
+			product.get().setProductAmount(body.getProductAmount());
+			product.get().setProductId(body.getProductId());
+			
+			productRepository.save(product.get());
+			
+			return product.get();
 		}
-
-		return null;
+		else {
+			return null;
+		}
+		
 	}
 
 	@DeleteMapping("/product/{productId}")
 	public String deleteProduct(@PathVariable Integer productId) {
 
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getProductId() == productId) {
-
-				data.remove(i);
-
-				return "Delete success";
-			}
+		Optional<Product> product = productRepository.findById(productId);
+		
+		if(product.isPresent()) {
+			productRepository.delete(product.get());
+			
+			return "Delete Sucsess.";
 		}
-
-		return "Product not found";
+		else {
+			return "Products Not Found.";
+		}
+		
 	}
 
 	@GetMapping("/product/search_text")
