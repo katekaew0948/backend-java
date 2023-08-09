@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,61 +31,101 @@ public class ProductController {
 	private List<Product> dataSearch = new ArrayList<Product>();
 
 	@GetMapping("/product")
-	public List<Product> getProduct() {
-
-		return productRepository.findAll();
+	public ResponseEntity<Object> getProduct() {
+		
+		try {
+			
+			return new ResponseEntity<>(productRepository.findAll() , HttpStatus.OK);
+			
+		} catch (Exception e) {
+			
+			return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@GetMapping("/product/{productId}")
-	public Optional<Product> getProductDetail(@PathVariable Integer productId) {
-
-		Optional<Product> product = productRepository.findById(productId);
+	public ResponseEntity<Object> getProductDetail(@PathVariable Integer productId) {
 		
-		return product;
+		try {
+			
+			Optional<Product> product = productRepository.findById(productId);
+			
+			if(product.isPresent()) {
+				
+				return new ResponseEntity<>(product , HttpStatus.OK);
+			}
+			else {
+				
+				return new ResponseEntity<>("Product not found" , HttpStatus.BAD_REQUEST);
+			}
+			
+			
+		} catch (Exception e) {
+			
+			return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@PostMapping("/product")
-	public Product addProduct(@RequestBody Product body) {
-
-		return productRepository.save(body);
+	public ResponseEntity<Object> addProduct(@RequestBody Product body) {
+		
+		try {
+			
+			return new ResponseEntity<>(productRepository.save(body) , HttpStatus.CREATED);
+			
+		} catch (Exception e) {
+			return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@PutMapping("/product/{productId}")
-	public Product updateProduct(@PathVariable Integer productId, @RequestBody Product body) {
+	public ResponseEntity<Object> updateProduct(@PathVariable Integer productId, @RequestBody Product body) {
 
-		Optional<Product> product = productRepository.findById(productId);
-		
-		if(product.isPresent()) {
-			product.get().setProductName(body.getProductName());
-			product.get().setProductPrice(body.getProductPrice());
-			product.get().setProductDetail(body.getProductDetail());
-			product.get().setProductAmount(body.getProductAmount());
-			product.get().setProductId(body.getProductId());
+		try {
 			
-			productRepository.save(product.get());
+			Optional<Product> product = productRepository.findById(productId);
 			
-			return product.get();
-		}
-		else {
-			return null;
+			if(product.isPresent()) {
+				product.get().setProductName(body.getProductName());
+				product.get().setProductPrice(body.getProductPrice());
+				product.get().setProductDetail(body.getProductDetail());
+				product.get().setProductAmount(body.getProductAmount());
+				product.get().setProductId(body.getProductId());
+				
+				productRepository.save(product.get());
+				
+				return new ResponseEntity<>(product.get() , HttpStatus.OK);
+			}
+			else {
+				return new ResponseEntity<>("Product not found" , HttpStatus.BAD_REQUEST);
+			}
+			
+		} catch (Exception e) {
+			return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 	}
 
 	@DeleteMapping("/product/{productId}")
-	public String deleteProduct(@PathVariable Integer productId) {
-
-		Optional<Product> product = productRepository.findById(productId);
+	public ResponseEntity<Object> deleteProduct(@PathVariable Integer productId) {
 		
-		if(product.isPresent()) {
-			productRepository.delete(product.get());
+		try {
 			
-			return "Delete Sucsess.";
+			Optional<Product> product = productRepository.findById(productId);
+			
+			if(product.isPresent()) {
+				productRepository.delete(product.get());
+				
+				return new ResponseEntity<> ("Delete Sucsess." ,HttpStatus.OK);
+			}
+			else {
+				return new ResponseEntity<Object> ("Products Not Found." , HttpStatus.BAD_REQUEST);
+			}
+			
+		} catch (Exception e) {
+			return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		else {
-			return "Products Not Found.";
-		}
-		
+
 	}
 
 	@GetMapping("/product/search_text")
