@@ -138,5 +138,29 @@ public class EmployeeController {
 			return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+/*	@PostMapping("/employeeRole")
+	public ResponseEntity<Object> updateRole(@RequestBody Employee body) {
+
+		try {
+			Optional<Role> role = roleRepository.findById(4);
+
+			body.setRole(role.get());
+
+			Employee employee = employeeRepository.save(body);
+
+			for (Skill skill : body.getSkills()) {
+				skill.setEmployee(employee);
+				
+				skillRepository.save(skill);
+			}
+
+			return new ResponseEntity<>(employee, HttpStatus.CREATED);
+
+		} catch (Exception e) {
+
+			return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	} */
 
 }
