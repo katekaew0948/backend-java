@@ -13,13 +13,18 @@ public class Student {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	private String studentID;
+	private String studentId;
 	private String firstName;
 	private String lastName;
 	private String email;
-	public Student(String studentID, String firstName, String lastName, String email) {
+	
+	
+	public Student() {
 		super();
-		this.studentID = studentID;
+	}
+	public Student(String studentId, String firstName, String lastName, String email) {
+		super();
+		this.studentId = studentId;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
@@ -30,11 +35,11 @@ public class Student {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	public String getStudentID() {
-		return studentID;
+	public String getStudentId() {
+		return studentId;
 	}
 	public void setStudentID(String studentID) {
-		this.studentID = studentID;
+		this.studentId = studentId;
 	}
 	public String getFirstName() {
 		return firstName;
